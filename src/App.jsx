@@ -1,37 +1,17 @@
-import { useEffect, useState } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import NavbarTailwind from "./components/navbar/NavbarTailwind";
 import Homepage from "./pages/Homepage";
 import Login from "./pages/Login";
 import NotFound from "./pages/404";
-import { isTokenExpired } from "../utils/auth";
+import { useAuth } from "./context/AuthContext";
 
 function App() {
-  const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  // check user nya login gak
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token || isTokenExpired(token)) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("username");
-      navigate("/login");
-    }
-    setIsAuthenticated(!!token);
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("username");
-    setIsAuthenticated(false);
-  };
+  const { isAuthenticated, logout } = useAuth();
 
   return (
     <>
-      {isAuthenticated && <NavbarTailwind onLogout={handleLogout} />}
+      {isAuthenticated && <NavbarTailwind onLogout={logout} />}
 
       <Routes>
         <Route

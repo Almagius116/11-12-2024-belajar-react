@@ -2,6 +2,8 @@ import { useState } from "react";
 import axios from "axios";
 import Notification from "../components/notifications/Notification";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../api/axiosInstance";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -10,49 +12,27 @@ function Login() {
   const [notification, setNotification] = useState(null);
   const navigate = useNavigate();
 
+  const { login } = useAuth();
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/v1/auth/login",
-        {
-          email,
-          password,
-        }
-      );
-      console.log(response);
-
-      if (response.data.isSuccess) {
-        const token = response.data.data.token;
-        const username = response.data.data.username;
-
-        localStorage.setItem("token", token);
-        localStorage.setItem("username", username);
-        localStorage.setItem(
-          "rahasia punya imam",
-          "aku bangga bgt sama kalian FSW2 !"
-        );
-
-        setNotification({
-          type: "success",
-          message: response.data.message || "Successfully login",
-          description: "you are now redirect to homepage",
-        });
-
-        setTimeout(() => {
-          navigate("/");
-          navigate(0);
-        }, 2000);
-      } else {
-        console.log("masuk sini ga");
-      }
-    } catch (err) {
-      console.log(err.response.data.message);
+      await login(email, password);
 
       setNotification({
+        type: "success",
+        message: response.data.message || "Successfully login",
+        description: "you are now redirect to homepage",
+      });
+
+      setTimeout(() => {
+        setNotification(null);
+      }, 2000);
+    } catch (err) {
+      setNotification({
         type: "error",
-        message: err.response.data.message || "An error occured",
+        message: err?.message || "An error occured",
         description: "please try again",
       });
     }
